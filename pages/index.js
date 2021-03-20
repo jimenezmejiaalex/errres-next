@@ -1,65 +1,94 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import axios from 'axios';
+import { parseCookies } from 'nookies';
+import BlogInfo from '../components/Blog/BlogInfo';
+import Carousel from '../components/Carousel/Carousel';
+import FaqContainer from '../components/FAQ/FaqContainer';
+import TestimonialsContainer from '../components/Testimonials/TestimonialsContainer';
+import { useAppContext } from '../context/state';
 
-export default function Home() {
+function Home({ data }) {
+  const { breakpointData, height } = useAppContext();
+  const caouselItems = data.slides.map(({ id, title, description, buttonText, buttonUrl, imageInfo }) => ({
+    id,
+    image: `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${imageInfo.media_image}`,
+    title,
+    description,
+    buttonText,
+    buttonUrl
+  }));
+  const blogItems = data.blogData.map(item => (
+    {
+      ...item,
+      image: `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${item.image.media_image}`
+    }
+  ));
+  const testimonialItems = data.testimonialsData.items.map(item => (
+    {
+      ...item,
+      description: item.testimonial_description,
+      image: `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${item.testimonial_image.media_image}`
+    }
+  ));
+  const { aboutMedata } = data;
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+    <div className="flex flex-col">
+      <section className="" style={{
+        marginBottom: `${height(breakpointData.breakpoint)}px`
+      }}>
+        <Carousel items={caouselItems} />
+      </section>
+      <div className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
+        <section className="text-center my-12">
+          <h1 className="text-4xl text-eden mb-7">Que es ?</h1>
+          <div className="text-leather md:mx-20 lg:mx-56 xl:mx-64" dangerouslySetInnerHTML={{ __html: data.body }}></div>
+        </section>
+        <section>
+          <video controls src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${data.media.media_video_file}`}></video>
+        </section>
+        <section className="-mx-8 md:-mx-12 lg:-mx-32 xl:-mx-56 py-10">
+          <FaqContainer {...data.faqData} />
+        </section>
+        <section>
+          <TestimonialsContainer
+            items={testimonialItems}
+            title={data.testimonialsData.title}
+            body={data.testimonialsData.body} />
+        </section>
+        <section>
+          <BlogInfo items={blogItems} />
+        </section>
+        <section className="text-center py-4 flex flex-col justify-center items-center">
+          <h2 className="text-4xl text-eden py-4">{aboutMedata.title}</h2>
+          <div className="text-leather py-4" dangerouslySetInnerHTML={{ __html: aboutMedata.body }}></div>
+          <img className="max-w-sm mt-10 mb-4" src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${aboutMedata.image.media_image}`} alt="About me" />
+          <h5 className=" text-base font-medium text-eden">{aboutMedata.name}</h5>
+        </section>
+      </div>
     </div>
-  )
+  );
 }
+
+export const getServerSideProps = async (ctx) => {
+  const { user } = parseCookies(ctx);
+  const { data } = await axios.get(`${process.env.SERVER}/page/2`);
+  const response = await axios.get(`${process.env.SERVER}/slides`);
+  const faqData = await axios.get(`${process.env.SERVER}/faq-container/12`);
+  const blogData = await axios.get(`${process.env.SERVER}/blog-inicio`);
+  const testimonialsData = await axios.get(`${process.env.SERVER}/testimonials/19`);
+  const aboutMedata = await axios.get(`${process.env.SERVER}/about-me`);
+  return {
+    props: {
+      data: {
+        ...data[0],
+        slides: response.data,
+        faqData: faqData.data[0],
+        blogData: blogData.data,
+        testimonialsData: testimonialsData.data[0],
+        aboutMedata: aboutMedata.data[0],
+      }
+    }
+  }
+}
+
+export default Home;
