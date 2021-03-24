@@ -1,11 +1,14 @@
 import axios from 'axios';
+import Head from 'next/head';
 import { parseCookies } from 'nookies';
 import { useState } from 'react';
 import Filter from '../components/Filters/Filter';
 import Pagination from '../components/Pagination';
 import ProductItem from '../components/Product/ProductItem';
+import SEO from '../components/SEO';
 import { useAppContext } from '../context/state';
 import { PRODUCT_CATEGORY, PRODUCT_PRICE, PRODUCT_SIZE, PRODUCT_TYPE } from '../lib/consts';
+import useSEO from '../lib/useSEO';
 
 
 function Tienda({ introImage, title, products, filters }) {
@@ -40,8 +43,17 @@ function Tienda({ introImage, title, products, filters }) {
     const currentProducts = productItems.slice(indexOfFirstProduct, indexOfLastProduct);
 
     const paginate = (number) => setCurrentPage(number);
+    const seoInfo = useSEO('store', `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${introImage.media_image}`);
     return (
-        <div>
+        <main>
+            <Head>
+                <SEO
+                    title={seoInfo.title}
+                    description={seoInfo.description}
+                    imageUrl={seoInfo.image}
+                    url={seoInfo.url}
+                />
+            </Head>
             <section className="h-64 bg-cover bg-center flex justify-center" style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_SERVER_IMAGES}${introImage.media_image})` }}>
                 <h1 className="top-16 text-6xl self-center text-eden">{title}</h1>
             </section>
@@ -71,7 +83,7 @@ function Tienda({ introImage, title, products, filters }) {
                         paginate={paginate} />
                 </div>
             </section>
-        </div>
+        </main>
     )
 }
 

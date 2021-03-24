@@ -4,6 +4,9 @@ import { useState } from 'react'
 import CartItem from '../components/Cart/CartItem';
 import { useAppContext } from '../context/state';
 import { useRouter } from 'next/router';
+import useSEO from '../lib/useSEO';
+import Head from 'next/head';
+import SEO from '../components/SEO';
 
 function Cart() {
     const router = useRouter();
@@ -23,8 +26,17 @@ function Cart() {
         setOrder(newOrder);
         router.push('/compra');
     }
+    const seoInfo = useSEO('cart');
     return (
-        <div className="container mx-auto mt-10">
+        <main className="container mx-auto mt-10">
+            <Head>
+                <SEO
+                    title={seoInfo.title}
+                    description={seoInfo.description}
+                    imageUrl={seoInfo.image}
+                    url={seoInfo.url}
+                />
+            </Head>
             {
                 cart.length === 0 &&
                 <div className="text-center my-64">
@@ -76,7 +88,7 @@ function Cart() {
                 </div>
             }
 
-        </div>
+        </main>
 
     )
 }

@@ -1,9 +1,12 @@
 import axios from 'axios';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react'
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
 import Logo from '../components/Logo';
+import SEO from '../components/SEO';
+import useSEO from '../lib/useSEO';
 
 function Register() {
     const router = useRouter();
@@ -37,8 +40,17 @@ function Register() {
             setLoading(false);
         }
     }
+    const seoInfo = useSEO('register');
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <Head>
+                <SEO
+                    title={seoInfo.title}
+                    description={seoInfo.description}
+                    imageUrl={seoInfo.image}
+                    url={seoInfo.url}
+                />
+            </Head>
             <div className="max-w-md w-full space-y-8">
                 {loading && <Loading />}
                 <div className="flex justify-center">
@@ -68,8 +80,7 @@ function Register() {
                     </div>
                 </form>
             </div>
-        </div>
-
+        </main>
     )
 }
 
