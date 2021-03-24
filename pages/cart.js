@@ -17,7 +17,8 @@ function Cart() {
         const newOrder = {
             ...order,
             total,
-            envio   
+            envio,
+            products: cart
         }
         setOrder(newOrder);
         router.push('/compra');
@@ -61,7 +62,7 @@ function Cart() {
                             <label className="font-medium inline-block mb-3 text-sm uppercase">Envio</label>
                             <select onChange={handleEnviochange} className="block p-2 text-gray-600 w-full text-sm">
                                 <option value={envioDentroGam}>{`Dentro del GAM - ₡ ${parseInt(envioDentroGam)}`}</option>
-                                <option value={envioFueraGam}>{`Dentro del GAM - ₡ ${parseInt(envioFueraGam)}`}</option>
+                                <option value={envioFueraGam}>{`Fuera del GAM - ₡ ${parseInt(envioFueraGam)}`}</option>
                             </select>
                         </div>
                         <div className="border-t mt-8">

@@ -1,20 +1,23 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function TransferForm({ setFile, setReference }) {
-    const [files, setFiles] = useState([]);
-    const [idReference, setIdReference] = useState(null);
+    const inputFileRef = useRef();
+    const [files, setFiles] = useState(null);
+    const [_, setIdReference] = useState(null);
     function handleFileChange(e) {
-        setFiles([...files, ...e.target.files]);
-        setFile(files);
+        console.log(e.target.files[0]);
+        setFiles(e.target.files[0]);
+        setFile(e.target.files[0]);
     }
     function removeFile(f) {
-        setFiles(files.filter(x => x !== f));
-        setFile(files);
+        inputFileRef.current.value = '';
+        setFiles(null);
+        setFile(null);
     }
 
     function handleReferenceId({ target }) {
         setIdReference(target.value);
-        setReference(idReference);
+        setReference(target.value);
     }
 
     return (
@@ -37,25 +40,20 @@ function TransferForm({ setFile, setReference }) {
                         <span className="ml-2">Subir comprobante</span>
                     </button>
                     <input
+                        ref={inputFileRef}
                         onChange={handleFileChange}
                         className="cursor-pointer absolute block py-2 px-4 w-full top-0 opacity-0 pin-r pin-t"
                         type="file"
                     />
-                    <div>
-                        {
-                            files.map(x =>
-                            (
-                                <div className="flex items-center p-4 pl-0">
-                                    <div onClick={() => removeFile(x)} className="text-red-600 pr-4 cursor-pointer">
-                                        <svg width="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>{x.name}</div>
-                                </div>
-                            ))
-                        }
-                    </div>
+                    {files &&
+                        <div className="flex items-center p-4 pl-0">
+                            <div onClick={() => removeFile(files)} className="text-red-600 pr-4 cursor-pointer">
+                                <svg width="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>{files.name}</div>
+                        </div>}
                 </div>
                 {/* <div className="flex flex-wrap -mx-3 mb-6">
                     <div className="w-full px-3">
