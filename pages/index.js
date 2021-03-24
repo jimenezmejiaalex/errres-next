@@ -5,12 +5,8 @@ import Carousel from '../components/Carousel/Carousel';
 import FaqContainer from '../components/FAQ/FaqContainer';
 import TestimonialsContainer from '../components/Testimonials/TestimonialsContainer';
 import { useAppContext } from '../context/state';
-import Head from 'next/head';
-import SEO from '../components/SEO';
-import { PAGES_SEO } from '../lib/consts';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import useSEO from '../lib/useSEO';
+import { NextSeo } from 'next-seo';
 
 function Home({ data }) {
   const { breakpointData, height } = useAppContext();
@@ -40,14 +36,18 @@ function Home({ data }) {
 
   return (
     <main className="flex flex-col">
-      <Head>
-          <SEO
-              title={seoInfo.title}
-              description={seoInfo.description}
-              imageUrl={seoInfo.image}
-              url={seoInfo.url}
-          />
-      </Head>
+     <NextSeo
+        title={seoInfo.title}
+        description={seoInfo.description}
+        canonical={seoInfo.url}
+        openGraph={{
+            url: seoInfo.url,
+            title: seoInfo.title,
+            description: seoInfo.description,
+            images: [{ url: seoInfo.image },],
+            site_name: 'Errres',
+        }}
+    />
       <section className="" style={{
         marginBottom: `${height(breakpointData.breakpoint)}px`
       }}>

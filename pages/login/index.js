@@ -5,6 +5,8 @@ import Logo from '../../components/Logo'
 import { setCookie } from 'nookies';
 import Link from 'next/link';
 import Loading from '../../components/Loading';
+import useSEO from '../../lib/useSEO';
+import { NextSeo } from 'next-seo';
 
 function Login() {
     const router = useRouter();
@@ -46,8 +48,21 @@ function Login() {
             setLoading(false);
         }
     }
+    const seoInfo = useSEO('login');
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <NextSeo
+                title={seoInfo.title}
+                description={seoInfo.description}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: seoInfo.title,
+                    description: seoInfo.description,
+                    images: [{ url: seoInfo.image },],
+                    site_name: 'Errres',
+                }}
+            />
             <div className="max-w-md w-full space-y-8">
                 {loading && <Loading />}
                 <div className="flex justify-center">
@@ -85,7 +100,7 @@ function Login() {
                     </div>
                 </form>
             </div>
-        </div>
+        </main>
 
     )
 }

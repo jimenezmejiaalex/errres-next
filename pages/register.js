@@ -1,12 +1,11 @@
 import axios from 'axios';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react'
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
 import Logo from '../components/Logo';
-import SEO from '../components/SEO';
 import useSEO from '../lib/useSEO';
+import { NextSeo } from 'next-seo';
 
 function Register() {
     const router = useRouter();
@@ -43,14 +42,18 @@ function Register() {
     const seoInfo = useSEO('register');
     return (
         <main className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <Head>
-                <SEO
-                    title={seoInfo.title}
-                    description={seoInfo.description}
-                    imageUrl={seoInfo.image}
-                    url={seoInfo.url}
-                />
-            </Head>
+            <NextSeo
+                title={seoInfo.title}
+                description={seoInfo.description}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: seoInfo.title,
+                    description: seoInfo.description,
+                    images: [{ url: seoInfo.image },],
+                    site_name: 'Errres',
+                }}
+            />
             <div className="max-w-md w-full space-y-8">
                 {loading && <Loading />}
                 <div className="flex justify-center">

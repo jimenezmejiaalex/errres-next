@@ -1,14 +1,13 @@
 import axios from 'axios';
-import Head from 'next/head';
 import { parseCookies } from 'nookies';
 import { useState } from 'react';
 import Filter from '../components/Filters/Filter';
 import Pagination from '../components/Pagination';
 import ProductItem from '../components/Product/ProductItem';
-import SEO from '../components/SEO';
 import { useAppContext } from '../context/state';
 import { PRODUCT_CATEGORY, PRODUCT_PRICE, PRODUCT_SIZE, PRODUCT_TYPE } from '../lib/consts';
 import useSEO from '../lib/useSEO';
+import { NextSeo } from 'next-seo';
 
 
 function Tienda({ introImage, title, products, filters }) {
@@ -46,14 +45,18 @@ function Tienda({ introImage, title, products, filters }) {
     const seoInfo = useSEO('store', `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${introImage.media_image}`);
     return (
         <main>
-            <Head>
-                <SEO
-                    title={seoInfo.title}
-                    description={seoInfo.description}
-                    imageUrl={seoInfo.image}
-                    url={seoInfo.url}
-                />
-            </Head>
+            <NextSeo
+                title={seoInfo.title}
+                description={seoInfo.description}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: seoInfo.title,
+                    description: seoInfo.description,
+                    images: [{ url: seoInfo.image },],
+                    site_name: 'Errres',
+                }}
+            />
             <section className="h-64 bg-cover bg-center flex justify-center" style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_SERVER_IMAGES}${introImage.media_image})` }}>
                 <h1 className="top-16 text-6xl self-center text-eden">{title}</h1>
             </section>
