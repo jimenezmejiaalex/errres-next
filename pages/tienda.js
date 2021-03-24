@@ -92,12 +92,37 @@ function Tienda({ introImage, title, products, filters }) {
 
 export const getServerSideProps = async (ctx) => {
     const user = parseCookies(ctx).user;
-    const { data } = await axios.get(`${process.env.SERVER}/page/20`);
-    const productsData = await axios.get(`${process.env.SERVER}/store`);
+    const { data } = await axios.get(`${process.env.SERVER}/page/20`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
+    const productsData = await axios.get(`${process.env.SERVER}/store`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
     const prices = productsData.data.map(({ price }) => parseInt(price));
-    const sizesData = await axios.get(`${process.env.SERVER}/sizes`);
-    const typesData = await axios.get(`${process.env.SERVER}/types`);
-    const categoriesData = await axios.get(`${process.env.SERVER}/categories`);
+    const sizesData = await axios.get(`${process.env.SERVER}/sizes`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
+    const typesData = await axios.get(`${process.env.SERVER}/types`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
+    const categoriesData = await axios.get(`${process.env.SERVER}/categories`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
     const filters = {
         [PRODUCT_TYPE]: typesData.data.map(({ name }) => name),
         [PRODUCT_SIZE]: sizesData.data.map(({ name }) => name),
@@ -109,7 +134,12 @@ export const getServerSideProps = async (ctx) => {
     if (user) {
         const userData = await axios.get(`${process.env.SERVER}/users/${user}`);
         const { id } = userData.data[0];
-        const orderData = await axios.get(`${process.env.SERVER}/order/${id}`);
+        const orderData = await axios.get(`${process.env.SERVER}/order/${id}`, {
+            auth: {
+                username: process.env.API_USER,
+                password: process.env.API_PASS
+            }
+        });
         const orderProducts = orderData?.data[0]?.products;
         products = orderProducts ? products.filter(product => !orderProducts.some(orderProduct => product.id === orderProduct.id)) : products;
     }

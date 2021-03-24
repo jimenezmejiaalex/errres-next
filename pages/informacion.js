@@ -32,7 +32,12 @@ function Informacion({ body, media, introImage, title }) {
 }
 
 export const getServerSideProps = async (ctx) => {
-    const { data } = await axios.get(`${process.env.SERVER}/page/4`);
+    const { data } = await axios.get(`${process.env.SERVER}/page/4`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
     return {
         props: {
             ...data[0],

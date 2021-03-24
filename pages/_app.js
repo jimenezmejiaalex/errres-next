@@ -53,15 +53,33 @@ function MyApp({ Component, pageProps, general }) {
 
 MyApp.getInitialProps = async ({ Component, ctx }) => {
   let pageProps = {};
-  const { data } = await axios.get(`${process.env.SERVER}/general`);
+  const { data } = await axios.get(
+    `${process.env.SERVER}/general`,
+    {
+      auth: {
+        username: process.env.API_USER,
+        password: process.env.API_PASS
+      }
+    }
+  );
   const currencydata = await axios.get('https://tipodecambio.paginasweb.cr/api');
   const user = parseCookies(ctx).user;
   let order;
   if (user) {
     const userData = await axios.get(`${process.env.SERVER}/users/${user}`);
     const { id } = userData.data[0];
-    const orderData = await axios.get(`${process.env.SERVER}/order/${id}`);
-    const promises = orderData.data[0]?.products.map(product => axios.get(`${process.env.SERVER}/store/${product.id}`));
+    const orderData = await axios.get(`${process.env.SERVER}/order/${id}`, {
+      auth: {
+        username: process.env.API_USER,
+        password: process.env.API_PASS
+      }
+    });
+    const promises = orderData.data[0]?.products.map(product => axios.get(`${process.env.SERVER}/store/${product.id}`, {
+      auth: {
+        username: process.env.API_USER,
+        password: process.env.API_PASS
+      }
+    }));
     const cart = promises ? await Promise.all(promises).then((values) => values.map(({ data }) => ({ ...data[0], image: `${process.env.SERVER_IMAGES}${data[0].image.media_image}` }))) : [];
     order = {
       ...orderData.data[0],

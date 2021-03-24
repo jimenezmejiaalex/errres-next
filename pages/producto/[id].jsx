@@ -95,7 +95,12 @@ function Product({id, title, body, sumary, categories, colors, images, introImag
 }
 
 export const getServerSideProps = async ({params}) => {
-    const {data} = await axios.get(`${process.env.SERVER}/product/${params.id}`);
+    const {data} = await axios.get(`${process.env.SERVER}/product/${params.id}`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
     const productData = data[0];
     return {
         props:{

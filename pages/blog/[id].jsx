@@ -34,7 +34,12 @@ function BlogItem({image, images, title, body}) {
     )
 }
 export const getServerSideProps = async ({params}) => {
-    const {data} = await axios.get(`${process.env.SERVER}/blog/${params.id}`);
+    const {data} = await axios.get(`${process.env.SERVER}/blog/${params.id}`,{
+        auth: {
+          username: process.env.API_USER,
+          password: process.env.API_PASS
+        }
+      });
     return {
         props:{
             ...data[0]

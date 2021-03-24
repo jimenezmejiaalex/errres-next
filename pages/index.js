@@ -86,12 +86,42 @@ function Home({ data }) {
 
 export const getServerSideProps = async (ctx) => {
   const { user } = parseCookies(ctx);
-  const { data } = await axios.get(`${process.env.SERVER}/page/2`);
-  const response = await axios.get(`${process.env.SERVER}/slides`);
-  const faqData = await axios.get(`${process.env.SERVER}/faq-container/12`);
-  const blogData = await axios.get(`${process.env.SERVER}/blog-inicio`);
-  const testimonialsData = await axios.get(`${process.env.SERVER}/testimonials/19`);
-  const aboutMedata = await axios.get(`${process.env.SERVER}/about-me`);
+  const { data } = await axios.get(`${process.env.SERVER}/page/2`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
+  const response = await axios.get(`${process.env.SERVER}/slides`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
+  const faqData = await axios.get(`${process.env.SERVER}/faq-container/12`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
+  const blogData = await axios.get(`${process.env.SERVER}/blog-inicio`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
+  const testimonialsData = await axios.get(`${process.env.SERVER}/testimonials/19`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
+  const aboutMedata = await axios.get(`${process.env.SERVER}/about-me`, {
+    auth: {
+      username: process.env.API_USER,
+      password: process.env.API_PASS
+    }
+  });
   return {
     props: {
       data: {
