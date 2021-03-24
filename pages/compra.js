@@ -170,7 +170,9 @@ function Compra() {
             router.push('/');
         }
     }, [router, total, envio]);
-    if (!total || !envio) return null;
+    if (!total || !envio) return (
+        <div className="my-64"><div className="my-64"></div></div>
+    );
     const seoInfo = useSEO('compra');
     return (
         <main className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">

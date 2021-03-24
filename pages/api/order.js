@@ -42,7 +42,6 @@ export default async (req, res) => {
                     } : null
                 );
                 if (purchaseInfo) {
-                    console.log(cart);
                     const pendingUnpublishProducts = cart.map(
                         product => (
                             axios.patch(`${process.env.ORIGIN}/node/${product.id}?_format=json`
@@ -60,7 +59,6 @@ export default async (req, res) => {
                         )
                     );
                     const values = await Promise.all(pendingUnpublishProducts).then((values) => values.map(({ data }) => data));
-                    console.log(values)
                 }
                 await axios.patch(`${process.env.ORIGIN}/node/${id}?_format=json`
                     , order, {

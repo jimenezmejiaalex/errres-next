@@ -58,9 +58,19 @@ function Blog({ blogData, body, media, introImage, title }) {
     )
 }
 
-export const getStaticProps = async (ctx) => {
-    const { data } = await axios.get(`${process.env.SERVER}/page/3`);
-    const blogData = await axios.get(`${process.env.SERVER}/blog-page`);
+export const getServerSideProps = async (ctx) => {
+    const { data } = await axios.get(`${process.env.SERVER}/page/3`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
+    const blogData = await axios.get(`${process.env.SERVER}/blog-page`, {
+        auth: {
+            username: process.env.API_USER,
+            password: process.env.API_PASS
+        }
+    });
 
     return {
         props: {
