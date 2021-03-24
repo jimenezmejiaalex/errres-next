@@ -5,6 +5,12 @@ import Carousel from '../components/Carousel/Carousel';
 import FaqContainer from '../components/FAQ/FaqContainer';
 import TestimonialsContainer from '../components/Testimonials/TestimonialsContainer';
 import { useAppContext } from '../context/state';
+import Head from 'next/head';
+import SEO from '../components/SEO';
+import { PAGES_SEO } from '../lib/consts';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import useSEO from '../lib/useSEO';
 
 function Home({ data }) {
   const { breakpointData, height } = useAppContext();
@@ -30,9 +36,18 @@ function Home({ data }) {
     }
   ));
   const { aboutMedata } = data;
+  const seoInfo = useSEO('home', caouselItems[0] ? caouselItems[0].image : '')
 
   return (
-    <div className="flex flex-col">
+    <main className="flex flex-col">
+      <Head>
+          <SEO
+              title={seoInfo.title}
+              description={seoInfo.description}
+              imageUrl={seoInfo.image}
+              url={seoInfo.url}
+          />
+      </Head>
       <section className="" style={{
         marginBottom: `${height(breakpointData.breakpoint)}px`
       }}>
@@ -65,7 +80,7 @@ function Home({ data }) {
           <h5 className=" text-base font-medium text-eden">{aboutMedata.name}</h5>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
 

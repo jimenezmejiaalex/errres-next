@@ -14,6 +14,9 @@ import Loading from "../components/Loading";
 import { getBinaryFromFile, getReceiptID } from "../lib/utils";
 import ErrorMessage from "../components/ErrorMessage";
 import Steps from "../components/Steps/Steps";
+import useSEO from "../lib/useSEO";
+import Head from "next/head";
+import SEO from "../components/SEO";
 
 function Compra() {
     const router = useRouter();
@@ -169,8 +172,17 @@ function Compra() {
         }
     }, [router, total, envio]);
     if (!total || !envio) return null;
+    const seoInfo = useSEO('compra');
     return (
-        <div className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
+        <main className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
+            <Head>
+                <SEO
+                    title={seoInfo.title}
+                    description={seoInfo.description}
+                    imageUrl={seoInfo.image}
+                    url={seoInfo.url}
+                />
+            </Head>
             {loading && <Loading />}
             <div className="flex flex-col w-full">
                 <Steps currentStep={step} setCurrentStep={setStep} stepsCompleted={stepsCompleted} />
@@ -203,7 +215,7 @@ function Compra() {
                 <Button text={'Finalizar Compra'} click={completeOrder} />
                 {errorMessage && <ErrorMessage error={error} />}
             </div>
-        </div>
+        </main>
     )
 }
 
