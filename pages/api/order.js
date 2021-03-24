@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { createOrder } from '../../lib/utils';
+import { createOrder, createProduct } from '../../lib/utils';
 
 export default async (req, res) => {
     const { method } = req;
-    const { cart, username, title, description, token } = req.body;
+    const { cart, username, title, description, token, purchaseInfo } = req.body;
     switch (method) {
         case 'POST':
             try {
@@ -29,12 +29,39 @@ export default async (req, res) => {
             const { id } = req.body;
             try {
                 let orderData = await axios.get(`${process.env.SERVER}/order-by-id/${id}`);
-                console.log(orderData.data[0])
                 const userData = await axios.get(`${process.env.SERVER}/users/${username}`);
-                const orderState = orderData.data[0].title === title;
-                console.log(orderState)
-                const order = createOrder(title, description, cart, userData.data[0], orderState);
-                console.log(order);
+                const order = createOrder(
+                    title,
+                    description,
+                    cart,
+                    userData.data[0],
+                    !purchaseInfo,
+                    purchaseInfo ? {
+                        id: purchaseInfo.receipt,
+                        idRef: purchaseInfo.referenceID
+                    } : null
+                );
+                if (purchaseInfo) {
+                    console.log(cart);
+                    const pendingUnpublishProducts = cart.map(
+                        product => (
+                            axios.patch(`${process.env.ORIGIN}/node/${product.id}?_format=json`
+                                , createProduct(
+                                    product.id,
+                                    product.uid,
+                                    false
+                                ), {
+                                headers: { 'X-CSRF-Token': token },
+                                auth: {
+                                    username: process.env.API_USER,
+                                    password: process.env.API_PASS
+                                }
+                            })
+                        )
+                    );
+                    const values = await Promise.all(pendingUnpublishProducts).then((values) => values.map(({ data }) => data));
+                    console.log(values)
+                }
                 await axios.patch(`${process.env.ORIGIN}/node/${id}?_format=json`
                     , order, {
                     headers: { 'X-CSRF-Token': token },
@@ -44,9 +71,7 @@ export default async (req, res) => {
                     }
                 });
                 orderData = await axios.get(`${process.env.SERVER}/order-by-id/${id}`);
-                console.log(orderData.data);
                 const objectResponse = orderData.data[0];
-                console.log(objectResponse)
                 delete objectResponse.products;
                 res.status(200).json(objectResponse);
             } catch (error) {

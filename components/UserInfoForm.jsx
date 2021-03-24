@@ -3,18 +3,23 @@ import countries from '../context/countries.json'
 import { DEFAULT_COUNTRY } from '../lib/consts';
 function UserInfoForm({setUserInfo}) {
     const [country, setCountry] = useState(DEFAULT_COUNTRY.code);
-    const [userInfoState, setUserInfoState] = useState({});
+    const [userInfoState, setUserInfoState] = useState({
+        country
+    });
     const handleOnchangeInfo = ({target})=> {
         const {name, value} = target;
         setUserInfoState({
             ...userInfoState,
             [name] : value
         });
-        setUserInfo(userInfoState);
+        setUserInfo({
+            ...userInfoState,
+            [name] : value
+        });
     }
     return (
         <>
-            <form className="w-full lg:max-w-lg">
+            <form className="w-full ">
                 <div className="bg-white p-4 rounded shadow">
                     <h2 className="text-2xl py-4 pt-0">Dirección de Envío</h2>
                     <div className="flex flex-wrap -mx-3 mb-6">
@@ -87,7 +92,7 @@ function UserInfoForm({setUserInfo}) {
                             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-password">
                                 Notas del pedido (opcional)
                             </label>
-                            <textarea onChange={handleOnchangeInfo} value={userInfoState.notes||''} name="notes" className=" no-resize appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 h-48 resize-none" id="notas" defaultValue={""} placeholder="Notas sobre tu pedido, por ejemplo, notas especiales para la entrega." />
+                            <textarea onChange={handleOnchangeInfo} value={userInfoState.notes||''} name="notes" className=" no-resize appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 h-48 resize-none" id="notas" placeholder="Notas sobre tu pedido, por ejemplo, notas especiales para la entrega." />
                         </div>
                     </div>
                 </div>
