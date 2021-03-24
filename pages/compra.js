@@ -15,8 +15,7 @@ import { getBinaryFromFile, getReceiptID } from "../lib/utils";
 import ErrorMessage from "../components/ErrorMessage";
 import Steps from "../components/Steps/Steps";
 import useSEO from "../lib/useSEO";
-import Head from "next/head";
-import SEO from "../components/SEO";
+import { NextSeo } from 'next-seo';
 
 function Compra() {
     const router = useRouter();
@@ -175,14 +174,18 @@ function Compra() {
     const seoInfo = useSEO('compra');
     return (
         <main className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
-            <Head>
-                <SEO
-                    title={seoInfo.title}
-                    description={seoInfo.description}
-                    imageUrl={seoInfo.image}
-                    url={seoInfo.url}
-                />
-            </Head>
+            <NextSeo
+                title={seoInfo.title}
+                description={seoInfo.description}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: seoInfo.title,
+                    description: seoInfo.description,
+                    images: [{ url: seoInfo.image },],
+                    site_name: 'Errres',
+                }}
+            />
             {loading && <Loading />}
             <div className="flex flex-col w-full">
                 <Steps currentStep={step} setCurrentStep={setStep} stepsCompleted={stepsCompleted} />

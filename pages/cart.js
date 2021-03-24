@@ -5,8 +5,7 @@ import CartItem from '../components/Cart/CartItem';
 import { useAppContext } from '../context/state';
 import { useRouter } from 'next/router';
 import useSEO from '../lib/useSEO';
-import Head from 'next/head';
-import SEO from '../components/SEO';
+import { NextSeo } from 'next-seo';
 
 function Cart() {
     const router = useRouter();
@@ -29,14 +28,18 @@ function Cart() {
     const seoInfo = useSEO('cart');
     return (
         <main className="container mx-auto mt-10">
-            <Head>
-                <SEO
-                    title={seoInfo.title}
-                    description={seoInfo.description}
-                    imageUrl={seoInfo.image}
-                    url={seoInfo.url}
-                />
-            </Head>
+            <NextSeo
+                title={seoInfo.title}
+                description={seoInfo.description}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: seoInfo.title,
+                    description: seoInfo.description,
+                    images: [{ url: seoInfo.image },],
+                    site_name: 'Errres',
+                }}
+            />
             {
                 cart.length === 0 &&
                 <div className="text-center my-64">

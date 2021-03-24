@@ -2,11 +2,26 @@ import axios from 'axios';
 import { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import AddToCartButton from '../../components/Product/AddToCartButton';
+import { NextSeo } from 'next-seo';
+import useSEO from '../../lib/useSEO';
 
 function Product({id, title, body, sumary, categories, colors, images, introImage, price, sizes, productType}) {
     const [currentImage, setCurrentImage] = useState(introImage);
+    const seoInfo = useSEO('store');
     return (
-        <div className="mx-8 md:mx-12 lg:mx-32 xl:mx-56 flex flex-col lg:flex-row lg:space-x-10">
+        <main className="mx-8 md:mx-12 lg:mx-32 xl:mx-56 flex flex-col lg:flex-row lg:space-x-10">
+            <NextSeo
+                title={title}
+                description={`${body.replace(/<\/?[^>]+(>|$)/g, "").substring(0, 150)}${body.length > 150 ? '...' : ''}`}
+                canonical={seoInfo.url}
+                openGraph={{
+                    url: seoInfo.url,
+                    title: title,
+                    description: `${body.replace(/<\/?[^>]+(>|$)/g, "").substring(0, 150)}${body.length > 150 ? '...' : ''}`,
+                    images: [{ url: `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${introImage}` },],
+                    site_name: 'Errres',
+                }}
+            />
             <div className="w-full lg:max-w-lg h-full overflow-hidden">
                 <img className="w-full" src={currentImage} alt={title}/>
                 <div className="py-4">
@@ -75,7 +90,7 @@ function Product({id, title, body, sumary, categories, colors, images, introImag
                 }
                 <AddToCartButton item={{introImage, title, id, price}}/>
             </div>
-        </div>
+        </main>
     )
 }
 
