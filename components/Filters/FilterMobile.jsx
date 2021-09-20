@@ -1,10 +1,10 @@
 import React from 'react'
 
-function Filter({ items, filterData }) {
+function FilterMobile({ items, filterData }) {
   return (
-    <div className="flex flex-wrap">
+    <div className=" md:flex md:flex-wrap">
       {Object.keys(items).map((item) => (
-        <div key={`filter-${item}`} className="my-2 max-w-xs w-full">
+        <div key={`filter-${item}`} className="my-2 md:max-w-xs md:w-full">
           <h2 className="text-lg font-semibold text-eden">{item}</h2>
           <div className="flex flex-col">
             {items[item].map((filterItem, index) => (
@@ -30,4 +30,4 @@ function Filter({ items, filterData }) {
   )
 }
 
-export default Filter
+export default FilterMobile
