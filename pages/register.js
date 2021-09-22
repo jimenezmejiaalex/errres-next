@@ -2,15 +2,16 @@ import axios from 'axios'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 import ErrorMessage from '../components/ErrorMessage'
-import Loading from '../components/Loading'
 import Logo from '../components/Logo'
 import useSEO from '../lib/useSEO'
 import { NextSeo } from 'next-seo'
+import { setCookie } from 'nookies'
+import { useAppContext } from '../context/state'
 
 function Register() {
   const router = useRouter()
+  const { setUser, setLoading } = useAppContext()
   const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [email, setEmail] = useState('')
@@ -20,7 +21,6 @@ function Register() {
   const handleRegister = async (e) => {
     if (username.length > 0 && password.length > 0 && email.length > 0) {
       setLoading(true)
-      document.documentElement.style.opacity = '0.5'
       try {
         e.preventDefault()
         const { data } = await axios.post('/api/register', {
@@ -29,15 +29,26 @@ function Register() {
           email
         })
         if (data.success) {
-          router.push('/login')
+          setCookie(null, 'user', data.user.username, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/'
+          })
+          setCookie(null, 'userToken', data.user.token, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/'
+          })
+          setCookie(null, 'logoutToken', data.user.logoutToken, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/'
+          })
+          setUser(data.user.username)
+          router.push('/').then(() => setLoading(false))
         }
       } catch (error) {
         const errorMessage =
           error?.response?.data?.error || 'Ocurrio un error en el servidor'
         setError(errorMessage)
       }
-      document.documentElement.style.opacity = '1'
-      setLoading(false)
     }
   }
   const seoInfo = useSEO('register')
@@ -56,7 +67,6 @@ function Register() {
         }}
       />
       <div className="max-w-md w-full space-y-8">
-        {loading && <Loading />}
         <div className="flex justify-center">
           <Logo />
         </div>
