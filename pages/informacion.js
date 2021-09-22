@@ -1,6 +1,7 @@
 import axios from 'axios'
 import useSEO from '../lib/useSEO'
 import { NextSeo } from 'next-seo'
+import { authOBJ } from '../lib/utils'
 
 function Informacion({ body, media, introImage, title }) {
   const seoInfo = useSEO('info')
@@ -44,17 +45,13 @@ function Informacion({ body, media, introImage, title }) {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
-  const { data } = await axios.get(`${process.env.SERVER}/page/4`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+export const getStaticProps = async (ctx) => {
+  const { data } = await axios.get(`${process.env.SERVER}/page/4`, authOBJ)
   return {
     props: {
       ...data[0]
-    }
+    },
+    revalidate: 60
   }
 }
 

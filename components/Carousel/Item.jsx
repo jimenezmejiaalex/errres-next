@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useAppContext } from '../../context/state'
 
 function Item({
@@ -13,6 +14,7 @@ function Item({
 }) {
   const { breakpointData, height } = useAppContext()
   const { breakpoint } = breakpointData
+  const ref = useRef()
 
   const boxStyle = {
     height: `${
@@ -27,9 +29,19 @@ function Item({
     boxStyle.height = undefined
   }
 
+  useEffect(() => {
+    if (ref) {
+      const parent = ref.current.parentElement
+      parent.style.height = `${height(breakpoint)}px`
+    }
+  }, [])
+
   return (
     <div
-      className={`absolute bg-center bg-cover w-screen lg:h-full flex flex-col lg:flex-row transition-background-image ${classAnimation} slide-${index}`}
+      ref={ref}
+      className={
+        'absolute bg-center bg-cover w-screen lg:h-full flex flex-col lg:flex-row transition-background-image'
+      }
       style={{
         maxHeight: '700px',
         minHeight: '400px',

@@ -4,26 +4,25 @@ import { useState } from 'react'
 import Filter from '../components/Filters/Filter'
 import Pagination from '../components/Pagination'
 import ProductItem from '../components/Product/ProductItem'
-import { useAppContext } from '../context/state'
-import {
-  PRODUCT_CATEGORY,
-  PRODUCT_PRICE,
-  PRODUCT_SIZE,
-  PRODUCT_TYPE
-} from '../lib/consts'
+import { PRODUCT_CATEGORY, PRODUCT_SIZE, PRODUCT_TYPE } from '../lib/consts'
 import useSEO from '../lib/useSEO'
 import { NextSeo } from 'next-seo'
-import FilterMobile from '../components/Filters/FilterMobile'
+import { authOBJ } from '../lib/utils'
 
-function Tienda({ introImage, title, products, filters }) {
+function Tienda({ introImage, title, products, filters, priceData }) {
   const [productItems, setProductItems] = useState(products)
   const [currentPage, setCurrentPage] = useState(1)
   const [productsPerPage] = useState(6)
-  const { breakpointData } = useAppContext()
-  const { breakpoint } = breakpointData
   const filterData = (checked, value, filtertype) => {
     let dataFiltered = products
     if (checked) {
+      if (filtertype === 'price') {
+        dataFiltered = dataFiltered.filter(({ price }) => {
+          const priceParsed = parseInt(price)
+          const result = value[0] <= priceParsed <= value[1]
+          return result
+        })
+      }
       if (filtertype === PRODUCT_CATEGORY) {
         dataFiltered = dataFiltered.filter(({ categories }) =>
           categories.some(({ name }) => name === value)
@@ -41,10 +40,6 @@ function Tienda({ introImage, title, products, filters }) {
       }
     }
     setProductItems([...dataFiltered])
-  }
-
-  function deleteMe(id) {
-    setProductItems([...productItems.filter((p) => p.id !== id)])
   }
 
   // Get Current post
@@ -84,16 +79,17 @@ function Tienda({ introImage, title, products, filters }) {
       </section>
       <section className="flex flex-col lg:flex-row mx-8 md:mx-12 lg:mx-32 xl:mx-56 lg:space-x-12">
         <div className=" lg:w-1/5">
-          <Filter items={filters} filterData={filterData} />
+          <Filter
+            items={filters}
+            filterData={filterData}
+            priceData={priceData}
+          />
         </div>
         <div className="py-4 lg:w-4/5">
           <h3 className="px-4 text-sm">{`Mostrando ${productItems.length} productos`}</h3>
           <div className="flex flex-wrap">
             {currentProducts.map((product) => (
-              <ProductItem
-                key={`product-item-${product.id}`}
-                {...{ ...product, deleteMe }}
-              />
+              <ProductItem key={`product-item-${product.id}`} {...product} />
             ))}
           </div>
           <Pagination
@@ -108,44 +104,21 @@ function Tienda({ introImage, title, products, filters }) {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   const user = parseCookies(ctx).user
-  const { data } = await axios.get(`${process.env.SERVER}/page/5`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const productsData = await axios.get(`${process.env.SERVER}/store`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+  const { data } = await axios.get(`${process.env.SERVER}/page/5`, authOBJ)
+  const productsData = await axios.get(`${process.env.SERVER}/store`, authOBJ)
   const prices = productsData.data.map(({ price }) => parseInt(price))
-  const sizesData = await axios.get(`${process.env.SERVER}/sizes`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const typesData = await axios.get(`${process.env.SERVER}/types`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const categoriesData = await axios.get(`${process.env.SERVER}/categories`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+  const sizesData = await axios.get(`${process.env.SERVER}/sizes`, authOBJ)
+  const typesData = await axios.get(`${process.env.SERVER}/types`, authOBJ)
+  const categoriesData = await axios.get(
+    `${process.env.SERVER}/categories`,
+    authOBJ
+  )
   const filters = {
     [PRODUCT_TYPE]: typesData.data.map(({ name }) => name),
     [PRODUCT_SIZE]: sizesData.data.map(({ name }) => name),
-    [PRODUCT_CATEGORY]: categoriesData.data.map(({ name }) => name),
-    [PRODUCT_PRICE]: [Math.min(...prices), Math.max(...prices)]
+    [PRODUCT_CATEGORY]: categoriesData.data.map(({ name }) => name)
   }
   let products = productsData.data.map((product) => ({
     ...product,
@@ -154,12 +127,10 @@ export const getServerSideProps = async (ctx) => {
   if (user) {
     const userData = await axios.get(`${process.env.SERVER}/users/${user}`)
     const { id } = userData.data[0]
-    const orderData = await axios.get(`${process.env.SERVER}/order/${id}`, {
-      auth: {
-        username: process.env.API_USER,
-        password: process.env.API_PASS
-      }
-    })
+    const orderData = await axios.get(
+      `${process.env.SERVER}/order/${id}`,
+      authOBJ
+    )
     const orderProducts = orderData?.data[0]?.products
     products = orderProducts
       ? products.filter(
@@ -174,8 +145,10 @@ export const getServerSideProps = async (ctx) => {
     props: {
       ...data[0],
       products,
-      filters
-    }
+      filters,
+      priceData: [Math.min(...prices), Math.max(...prices)]
+    },
+    revalidate: 30
   }
 }
 export default Tienda

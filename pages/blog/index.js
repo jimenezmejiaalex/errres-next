@@ -70,7 +70,7 @@ function Blog({ blogData, body, media, introImage, title }) {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   const { data } = await axios.get(`${process.env.SERVER}/page/3`, {
     auth: {
       username: process.env.API_USER,
@@ -88,7 +88,8 @@ export const getServerSideProps = async (ctx) => {
     props: {
       ...data[0],
       blogData: blogData.data
-    }
+    },
+    revalidate: 60
   }
 }
 

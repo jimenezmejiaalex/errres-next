@@ -1,5 +1,15 @@
 import axios from 'axios'
-import { createOrder, createProduct } from '../../lib/utils'
+import { parseCookies } from 'nookies'
+import { authOBJ, createOrder, createProduct } from '../../lib/utils'
+
+const getCartData = (values) => {
+  if (values.length && values.every((v) => v?.data?.length !== 0)) {
+    return values.map(({ data }) => ({
+      ...data[0],
+      image: `${process.env.SERVER_IMAGES}${data[0].image.media_image}`
+    }))
+  } else return []
+}
 
 export default async (req, res) => {
   const { method } = req
@@ -94,6 +104,31 @@ export default async (req, res) => {
           console.error(error, errorMessage)
           res.status(400).json({ error: 'Error en el servidor' })
         }
+      }
+      break
+    case 'GET':
+      try {
+        const cookies = parseCookies({ req })
+        const { user } = cookies
+        const userData = await axios.get(
+          `${process.env.SERVER}/users/${user}`,
+          authOBJ
+        )
+        const { id } = userData.data[0]
+        const orderData = await axios.get(
+          `${process.env.SERVER}/order/${id}`,
+          authOBJ
+        )
+        const promises = orderData.data[0]?.products.map((product) =>
+          axios.get(`${process.env.SERVER}/store/${product.id}`, authOBJ)
+        )
+        const cart = promises
+          ? await Promise.all(promises).then(getCartData)
+          : []
+        res.status(200).json({ ...orderData.data[0], products: cart })
+      } catch (error) {
+        console.error(error)
+        res.status(400).json({ status: 'error', error: 'Error en el servidor' })
       }
       break
     default:

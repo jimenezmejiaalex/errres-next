@@ -5,7 +5,6 @@ import { useAppContext } from '../context/state'
 import { useRouter } from 'next/router'
 import useSEO from '../lib/useSEO'
 import { NextSeo } from 'next-seo'
-import Loading from '../components/Loading'
 
 function Cart() {
   const router = useRouter()
@@ -126,7 +125,7 @@ function Cart() {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   return {
     props: {
       data: null

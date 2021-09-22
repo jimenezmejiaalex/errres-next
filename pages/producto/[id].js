@@ -4,19 +4,20 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import AddToCartButton from '../../components/Product/AddToCartButton'
 import { NextSeo } from 'next-seo'
 import useSEO from '../../lib/useSEO'
+import { authOBJ } from '../../lib/utils'
 
 function Product({
   id,
   title,
-  body,
+  body = '',
   sumary,
-  categories,
-  colors,
-  images,
+  categories = [],
+  colors = [],
+  images = [],
   introImage,
   price,
-  sizes,
-  productType
+  sizes = [],
+  productType = []
 }) {
   const [currentImage, setCurrentImage] = useState(introImage)
   const seoInfo = useSEO('store')
@@ -54,13 +55,13 @@ function Product({
           >
             {images.map((image, index) => (
               <SwiperSlide key={`product-slide-image-${index}`} tag="li">
-                <div className="" onClick={() => setCurrentImage(image)}>
+                <button className="" onClick={() => setCurrentImage(image)}>
                   <img
                     className=" w-full h-full object-cover hover:opacity-50"
                     src={image}
                     alt={title}
                   />
-                </div>
+                </button>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -87,7 +88,9 @@ function Product({
             </h3>
             <ul>
               {productType.map(({ name }) => (
-                <li className="text-leather font-bold">{name}</li>
+                <li key={name} className="text-leather font-bold">
+                  {name}
+                </li>
               ))}
             </ul>
           </div>
@@ -99,7 +102,9 @@ function Product({
             </h3>
             <ul>
               {sizes.map(({ name }) => (
-                <li className="text-leather">{name}</li>
+                <li key={name} className="text-leather">
+                  {name}
+                </li>
               ))}
             </ul>
           </div>
@@ -112,6 +117,7 @@ function Product({
             <ul className="flex space-x-2">
               {colors.map(({ name }) => (
                 <li
+                  key={name}
                   className="rounded-full w-5 h-5"
                   style={{ backgroundColor: name }}
                 ></li>
@@ -124,7 +130,9 @@ function Product({
             <h3 className=" text-xl text-eden font-semibold">Categorias:</h3>
             <ul>
               {categories.map(({ name }) => (
-                <li className="text-leather">{name}</li>
+                <li key={name} className="text-leather">
+                  {name}
+                </li>
               ))}
             </ul>
           </div>
@@ -135,24 +143,34 @@ function Product({
   )
 }
 
-export const getServerSideProps = async ({ params }) => {
+export const getStaticPaths = async () => {
+  const { data } = await axios.get(`${process.env.SERVER}/product/all`)
+  const paths = data.map((product) => ({
+    params: { id: product.id }
+  }))
+  return { paths, fallback: true }
+}
+
+export const getStaticProps = async ({ params }) => {
   const { data } = await axios.get(
     `${process.env.SERVER}/product/${params.id}`,
-    {
-      auth: {
-        username: process.env.API_USER,
-        password: process.env.API_PASS
-      }
-    }
+    authOBJ
   )
-  const productData = data[0]
-  return {
-    props: {
-      ...productData,
-      introImage: `${process.env.SERVER_IMAGES}${productData.introImage.media_image}`,
-      images: productData.images.map(
-        (img) => `${process.env.SERVER_IMAGES}${img.media_image}`
-      )
+  if (data && data.length) {
+    const productData = data[0]
+    return {
+      props: {
+        ...productData,
+        introImage: `${process.env.SERVER_IMAGES}${productData.introImage.media_image}`,
+        images: productData.images.map(
+          (img) => `${process.env.SERVER_IMAGES}${img.media_image}`
+        )
+      },
+      revalidate: 60
+    }
+  } else {
+    return {
+      notFound: true
     }
   }
 }
