@@ -3,35 +3,24 @@ import 'swiper/swiper.scss'
 import 'swiper/components/navigation/navigation.scss'
 import 'swiper/components/pagination/pagination.scss'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Router from 'next/router'
-import { parseCookies } from 'nookies'
 import { AppWrapper } from '../context/state'
 import Header from '../components/Header'
 import Logo from '../components/Logo'
 import Footer from '../components/Footer'
 import Loading from '../components/Loading'
+import { authOBJ } from '../lib/utils'
 
 function MyApp({ Component, pageProps, general }) {
-  const [scrolling, setScrolling] = useState(false)
-  const [scrollTop, setScrollTop] = useState(0)
   const [loading, setLoading] = useState(false)
-  const classes = 'shadow'
 
   Router.events.on('routeChangeStart', () => setLoading(true))
   Router.events.on('routeChangeComplete', () => setLoading(false))
   Router.events.on('routeChangeError', () => setLoading(false))
 
-  useEffect(() => {
-    const onScroll = (e) => {
-      setScrollTop(e.target.documentElement.scrollTop)
-      setScrolling(e.target.documentElement.scrollTop > scrollTop)
-    }
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [scrollTop])
   return (
-    <AppWrapper general={general}>
+    <AppWrapper general={general} loading={loading} setLoading={setLoading}>
       <div
         style={{
           backgroundImage: general.background
@@ -39,10 +28,7 @@ function MyApp({ Component, pageProps, general }) {
             : 'white'
         }}
       >
-        <div
-          className={`sticky top-0 ${scrollTop !== 0 ? classes : ''} z-50`}
-          style={{ backgroundColor: 'white' }}
-        >
+        <div className="sticky top-0 z-50" style={{ backgroundColor: 'white' }}>
           <div className="flex place-content-between items-center my-10 mx-8 md:mx-12 lg:mx-32 xl:mx-56">
             <Logo />
             <div className="flex items-baseline lg:space-x-16">
@@ -61,61 +47,11 @@ function MyApp({ Component, pageProps, general }) {
 }
 
 MyApp.getInitialProps = async ({ Component, ctx }) => {
-  let pageProps = {}
-  const { data } = await axios.get(`${process.env.SERVER}/general`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+  const { data } = await axios.get(`${process.env.SERVER}/general`, authOBJ)
   const currencydata = await axios.get('https://tipodecambio.paginasweb.cr/api')
-  const user = parseCookies(ctx).user
-  let order
-  if (user) {
-    const userData = await axios.get(`${process.env.SERVER}/users/${user}`, {
-      auth: {
-        username: process.env.API_USER,
-        password: process.env.API_PASS
-      }
-    })
-    const { id } = userData.data[0]
-    const orderData = await axios.get(`${process.env.SERVER}/order/${id}`, {
-      auth: {
-        username: process.env.API_USER,
-        password: process.env.API_PASS
-      }
-    })
-    const promises = orderData.data[0]?.products.map((product) =>
-      axios.get(`${process.env.SERVER}/store/${product.id}`, {
-        auth: {
-          username: process.env.API_USER,
-          password: process.env.API_PASS
-        }
-      })
-    )
-    const cart = promises
-      ? await Promise.all(promises).then((values) => {
-          if (values.length && values.every((v) => v?.data?.length !== 0)) {
-            return values.map(({ data }) => ({
-              ...data[0],
-              image: `${process.env.SERVER_IMAGES}${data[0].image.media_image}`
-            }))
-          } else return []
-        })
-      : []
-    order = {
-      ...orderData.data[0],
-      products: cart
-    }
-  }
-
-  if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx)
-  }
   const initialProps = {
     ...data[0],
-    tipoCambio: currencydata.data,
-    order
+    tipoCambio: currencydata.data
   }
   return {
     general: initialProps

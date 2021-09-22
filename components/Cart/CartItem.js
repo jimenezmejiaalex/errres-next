@@ -2,29 +2,26 @@ import axios from 'axios'
 import { parseCookies } from 'nookies'
 import React, { useState } from 'react'
 import { useAppContext } from '../../context/state'
-import order from '../../pages/api/order'
 import Loading from '../Loading'
 
 function CartItem({ introImage, title, id, price, image }) {
   const [loading, setLoading] = useState(false)
-  const { cart, setCart, order, setOrder, general } = useAppContext()
+  const { cart, setCart, order, setOrder } = useAppContext()
   const handleDeleteFromCart = async () => {
     const newCart = cart.filter((item) => item.id !== id)
     setLoading(true)
-    document.documentElement.style.opacity = '0.5'
     const { user, userToken } = parseCookies()
     const body = {
       cart: newCart,
       username: user,
-      title: general.order.title,
-      description: general.order.description,
+      title: order.title,
+      description: order.description,
       token: userToken,
       id: order.id
     }
     const { data } = await axios.patch('/api/order', body)
     setOrder(data)
     setCart(newCart)
-    document.documentElement.style.opacity = '1'
     setLoading(false)
   }
   return (

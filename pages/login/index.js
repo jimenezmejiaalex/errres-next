@@ -4,24 +4,23 @@ import React, { useState } from 'react'
 import Logo from '../../components/Logo'
 import { setCookie } from 'nookies'
 import Link from 'next/link'
-import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/ErrorMessage'
 import useSEO from '../../lib/useSEO'
 import { NextSeo } from 'next-seo'
+import { useAppContext } from '../../context/state'
 
 function Login() {
   const router = useRouter()
   const [error, setError] = useState(null)
   const [username, setUsername] = useState('')
+  const { setLoading, setUser } = useAppContext()
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
   const handleChangeUsername = ({ target }) => setUsername(target.value)
   const handleChangePassword = ({ target }) => setPassword(target.value)
   const handleLogin = async (e) => {
     if (username.length > 0 && password.length > 0) {
       e.preventDefault()
       setLoading(true)
-      document.documentElement.style.opacity = '0.5'
       try {
         const { data } = await axios.post('/api/auth', {
           username,
@@ -40,12 +39,12 @@ function Login() {
             maxAge: 30 * 24 * 60 * 60,
             path: '/'
           })
+          setUser(data.user.username)
           router.push('/')
         }
       } catch (_) {
         setError('Ocurrio un error en el servidor')
       }
-      document.documentElement.style.opacity = '1'
       setLoading(false)
     }
   }
@@ -65,7 +64,6 @@ function Login() {
         }}
       />
       <div className="max-w-md w-full space-y-8">
-        {loading && <Loading />}
         <div className="flex justify-center">
           <Logo />
         </div>
@@ -143,7 +141,7 @@ function Login() {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   return {
     props: {
       data: null

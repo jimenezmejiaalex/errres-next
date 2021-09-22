@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { authOBJ } from '../../lib/utils'
 
 export default async (req, res) => {
   const { method } = req
@@ -16,12 +17,7 @@ export default async (req, res) => {
           // Exist User
           const userData = await axios.get(
             `${process.env.SERVER}/users/${username}`,
-            {
-              auth: {
-                username: process.env.API_USER,
-                password: process.env.API_PASS
-              }
-            }
+            authOBJ
           )
           if (userData.data.length === 0) {
             res

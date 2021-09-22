@@ -4,6 +4,7 @@ import Thumbnail from '../../components/Blog/Thumbnail'
 import Pagination from '../../components/Pagination'
 import useSEO from '../../lib/useSEO'
 import { NextSeo } from 'next-seo'
+import { authOBJ } from '../../lib/utils'
 
 function Blog({ blogData, body, media, introImage, title }) {
   const blogItems = blogData.map((item) => ({
@@ -70,25 +71,16 @@ function Blog({ blogData, body, media, introImage, title }) {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
-  const { data } = await axios.get(`${process.env.SERVER}/page/3`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const blogData = await axios.get(`${process.env.SERVER}/blog-page`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+export const getStaticProps = async (ctx) => {
+  const { data } = await axios.get(`${process.env.SERVER}/page/3`, authOBJ)
+  const blogData = await axios.get(`${process.env.SERVER}/blog-page`, authOBJ)
 
   return {
     props: {
       ...data[0],
       blogData: blogData.data
-    }
+    },
+    revalidate: 60
   }
 }
 

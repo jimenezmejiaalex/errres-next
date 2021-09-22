@@ -17,10 +17,7 @@ function ProductItem({ image, title, id, price, uid, deleteMe }) {
           )}`}</span>
         </a>
       </Link>
-      <AddToCartButton
-        item={{ image, title, id, price, uid }}
-        deleteMe={deleteMe}
-      />
+      <AddToCartButton item={{ image, title, id, price, uid }} />
     </div>
   )
 }

@@ -3,8 +3,9 @@ import React from 'react'
 import { useAppContext } from '../../context/state'
 import { NextSeo } from 'next-seo'
 import useSEO from '../../lib/useSEO'
+import { authOBJ } from '../../lib/utils'
 
-function BlogItem({ image, images, title, body }) {
+function BlogItem({ image, images = [], title, body = '' }) {
   const { breakpointData, height } = useAppContext()
   const { breakpoint } = breakpointData
   const seoInfo = useSEO('blog')
@@ -24,7 +25,11 @@ function BlogItem({ image, images, title, body }) {
             .substring(0, 150)}${body.length > 150 ? '...' : ''}`,
           images: [
             {
-              url: `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${image.media_image}`
+              url: image
+                ? `${process.env.NEXT_PUBLIC_SERVER_IMAGES}${
+                    image?.media_image || ''
+                  }`
+                : ''
             }
           ],
           site_name: 'Errres'
@@ -33,7 +38,9 @@ function BlogItem({ image, images, title, body }) {
       <img
         className="max-w-4xl w-full object-cover object-center pb-4 h-64 m-2"
         style={{ height: `${height(breakpoint)}px` }}
-        src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${image.media_image}`}
+        src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${
+          image?.media_image || ''
+        }`}
         alt={title}
       />
       <div className="mx-6 md:mx-20 lg:mx-40 flex flex-col justify-center items-center">
@@ -45,9 +52,12 @@ function BlogItem({ image, images, title, body }) {
         <div className="flex flex-wrap -mx-4">
           {images.map((item) => (
             <img
+              key={item.id}
               alt={item.title}
               className="p-4"
-              src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${item.media_image}`}
+              src={`${process.env.NEXT_PUBLIC_SERVER_IMAGES}${
+                item?.media_image || ''
+              }`}
             />
           ))}
         </div>
@@ -55,16 +65,34 @@ function BlogItem({ image, images, title, body }) {
     </main>
   )
 }
-export const getServerSideProps = async ({ params }) => {
-  const { data } = await axios.get(`${process.env.SERVER}/blog/${params.id}`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+
+export const getStaticPaths = async () => {
+  const { data } = await axios.get(`${process.env.SERVER}/blog/all`)
+  const paths = data.map((item) => ({
+    params: { id: item.id }
+  }))
+
   return {
-    props: {
-      ...data[0]
+    paths,
+    fallback: true
+  }
+}
+
+export const getStaticProps = async ({ params }) => {
+  const { data } = await axios.get(
+    `${process.env.SERVER}/blog/${params.id}`,
+    authOBJ
+  )
+  if (data && data.length) {
+    return {
+      props: {
+        ...data[0]
+      },
+      revalidate: 60
+    }
+  } else {
+    return {
+      notFound: true
     }
   }
 }

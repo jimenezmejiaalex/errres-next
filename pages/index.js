@@ -7,6 +7,8 @@ import TestimonialsContainer from '../components/Testimonials/TestimonialsContai
 import { useAppContext } from '../context/state'
 import useSEO from '../lib/useSEO'
 import { NextSeo } from 'next-seo'
+import CarouselSwiper from '../components/Carousel/CarouselSwiper'
+import { authOBJ } from '../lib/utils'
 
 function Home({ data }) {
   const { breakpointData, height } = useAppContext()
@@ -47,13 +49,9 @@ function Home({ data }) {
           site_name: 'Errres'
         }}
       />
-      <section
-        className=""
-        style={{
-          marginBottom: `${height(breakpointData.breakpoint)}px`
-        }}
-      >
-        <Carousel items={caouselItems} />
+      <section className="">
+        <CarouselSwiper items={caouselItems} />
+        {/* <Carousel items={caouselItems} /> */}
       </section>
       <div className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
         <section className="text-center my-12">
@@ -102,47 +100,20 @@ function Home({ data }) {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   const { user } = parseCookies(ctx)
-  const { data } = await axios.get(`${process.env.SERVER}/page/2`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const response = await axios.get(`${process.env.SERVER}/slides`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const faqData = await axios.get(`${process.env.SERVER}/faq-container/13`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
-  const blogData = await axios.get(`${process.env.SERVER}/blog-inicio`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+  const { data } = await axios.get(`${process.env.SERVER}/page/2`, authOBJ)
+  const response = await axios.get(`${process.env.SERVER}/slides`, authOBJ)
+  const faqData = await axios.get(
+    `${process.env.SERVER}/faq-container/13`,
+    authOBJ
+  )
+  const blogData = await axios.get(`${process.env.SERVER}/blog-inicio`, authOBJ)
   const testimonialsData = await axios.get(
     `${process.env.SERVER}/testimonials/19`,
-    {
-      auth: {
-        username: process.env.API_USER,
-        password: process.env.API_PASS
-      }
-    }
+    authOBJ
   )
-  const aboutMedata = await axios.get(`${process.env.SERVER}/about-me`, {
-    auth: {
-      username: process.env.API_USER,
-      password: process.env.API_PASS
-    }
-  })
+  const aboutMedata = await axios.get(`${process.env.SERVER}/about-me`, authOBJ)
   return {
     props: {
       data: {
@@ -153,7 +124,8 @@ export const getServerSideProps = async (ctx) => {
         testimonialsData: testimonialsData.data[0],
         aboutMedata: aboutMedata.data[0]
       }
-    }
+    },
+    revalidate: 60
   }
 }
 

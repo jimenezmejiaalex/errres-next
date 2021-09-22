@@ -15,7 +15,6 @@ import {
 } from '../lib/consts'
 import { useRouter } from 'next/router'
 import Button from '../components/Button'
-import Loading from '../components/Loading'
 import { getBinaryFromFile, getReceiptID } from '../lib/utils'
 import ErrorMessage from '../components/ErrorMessage'
 import Steps from '../components/Steps/Steps'
@@ -24,9 +23,8 @@ import { NextSeo } from 'next-seo'
 
 function Compra() {
   const router = useRouter()
-  const { cart, order } = useAppContext()
+  const { cart, order, setCart, setOrder, setLoading } = useAppContext()
   const { total, envio } = order
-  const [loading, setLoading] = useState(false)
   const [orderTitle, setOrderTitle] = useState(null)
   const [files, setFiles] = useState(null)
   const [userInfo, setUserInfo] = useState(null)
@@ -133,7 +131,6 @@ function Compra() {
     } = userInfo
     const { user, userToken } = parseCookies()
     setLoading(true)
-    document.documentElement.style.opacity = '0.5'
     const fileReference = await getFileInfo()
     const purchase = {
       ...userInfo,
@@ -163,8 +160,11 @@ function Compra() {
       purchaseInfo: purchase
     }
     try {
-      const { data } = await axios.patch('/api/order', body)
-      window.location.href = `${window.location.origin}/gracias`
+      await axios.patch('/api/order', body)
+      setCart([])
+      setOrder({})
+      setLoading(false)
+      router.push('/gracias')
     } catch (error) {
       setLoading(false)
       setError(SERVER_ERROR)
@@ -183,12 +183,13 @@ function Compra() {
       router.push('/')
     }
   }, [router, total, envio])
-  if (!total || !envio)
+  if (!total || !envio) {
     return (
       <div className="my-64">
         <div className="my-64"></div>
       </div>
     )
+  }
   const seoInfo = useSEO('compra')
   return (
     <main className="mx-8 md:mx-12 lg:mx-32 xl:mx-56">
@@ -204,7 +205,6 @@ function Compra() {
           site_name: 'Errres'
         }}
       />
-      {loading && <Loading />}
       <div className="flex flex-col w-full">
         <Steps
           currentStep={step}
@@ -260,7 +260,7 @@ function Compra() {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   return {
     props: {
       data: null

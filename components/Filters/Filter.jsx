@@ -1,6 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { Range } from 'rc-slider'
+import 'rc-slider/assets/index.css'
 
-function Filter({ items, filterData }) {
+function Filter({ items, filterData, priceData }) {
+  const [priceValues, setpriceValues] = useState(priceData)
+  const handlePriceChange = (value) => {
+    setpriceValues(value)
+    filterData(true, value, 'price')
+  }
   return (
     <div className="flex flex-wrap">
       {Object.keys(items).map((item) => (
@@ -26,6 +33,22 @@ function Filter({ items, filterData }) {
           </div>
         </div>
       ))}
+      <div className="my-2 max-w-xs w-full">
+        <h2 className="text-lg font-semibold text-eden">Precio</h2>
+        <div className=" flex place-content-between">
+          <span className="ml-2 text-gray-700">{priceValues[0]}</span>
+          <span className="ml-2 text-gray-700">{priceValues[1]}</span>
+        </div>
+        <div className="flex flex-col">
+          <Range
+            onChange={handlePriceChange}
+            defaultValue={[priceData[0], priceData[1]]}
+            min={priceData[0]}
+            max={priceData[1]}
+            step={1}
+          />
+        </div>
+      </div>
     </div>
   )
 }

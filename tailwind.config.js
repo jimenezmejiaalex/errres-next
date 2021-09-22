@@ -1,4 +1,4 @@
-const colors = require('tailwindcss/colors');
+const colors = require('tailwindcss/colors')
 module.exports = {
   purge: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   darkMode: false, // or 'media' or 'class'
@@ -18,7 +18,7 @@ module.exports = {
         600: '#0B3038',
         700: '#030C0D',
         800: '#000000',
-        900: '#000000',
+        900: '#000000'
       },
       leather: {
         DEFAULT: '#9E7F60',
@@ -31,7 +31,7 @@ module.exports = {
         600: '#7E664D',
         700: '#5F4C39',
         800: '#3F3326',
-        900: '#1F1913',
+        900: '#1F1913'
       },
       black: colors.black,
       white: colors.white,
@@ -39,14 +39,14 @@ module.exports = {
       red: colors.red,
       yellow: colors.amber,
       blue: colors.blue,
-      pink: colors.pink,
+      pink: colors.pink
     },
     extend: {
-      borderWidth: ['hover', 'focus'],
-    },
+      borderWidth: ['hover', 'focus']
+    }
   },
   variants: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
-};
+  plugins: []
+}

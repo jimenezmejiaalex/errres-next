@@ -26,7 +26,7 @@ function Gracias() {
   )
 }
 
-export const getServerSideProps = async (ctx) => {
+export const getStaticProps = async (ctx) => {
   return {
     props: {
       data: null
