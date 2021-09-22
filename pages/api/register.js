@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { authOBJ } from '../../lib/utils'
+import { loginController } from './auth'
 
 export default async (req, res) => {
   try {
@@ -28,11 +29,10 @@ export default async (req, res) => {
         name: { value: username },
         mail: { value: email },
         pass: { value: password }
-      },
-      authOBJ
+      }
     )
     if (status === 200 && statusText === 'OK') {
-      res.status(200).json({ success: true })
+      await loginController(username, password, res)
     }
   } catch (error) {
     console.error(error)
